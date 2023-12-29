@@ -38,9 +38,8 @@ Before using the System ISO Creator, make sure you have the following:
 
 1. **Download the Script:**
     ```bash
-git clone https://github.com/tnkrueckergreen/SystemISO.git
-cd SystemISO
-
+    git clone https://github.com/tnkrueckergreen/SystemISO.git
+    cd SystemISO
     ```
 
 2. **Install Required Packages:**
