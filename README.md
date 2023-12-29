@@ -1,36 +1,82 @@
-# SystemISO
+# System ISO Creator
 
-SystemISO is a Python script that creates a polished ISO image of your Linux system. This script allows you to customize the ISO creation process by excluding specific directories and optionally installing a bootloader.
+Create a polished ISO image of your Linux system effortlessly.
+
+![System ISO Creator](demo.gif)
+
+## Table of Contents
+- [Introduction](#introduction)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Introduction
+
+The System ISO Creator is a tool that helps you create a snapshot of your Linux system, making it easy to back up or share without including personal data.
 
 ## Features
 
-- **Polished ISO Creation**: Easily generate an ISO image of your Linux system with a polished and user-friendly script.
-- **Directory Exclusion**: Exclude specific directories from the ISO to tailor it to your needs.
-- **Bootloader Installation (Optional)**: Install a bootloader to make the ISO bootable (optional, provide your own bootloader command).
-
-## Usage
-
-```bash
-sudo ./system_iso.py OUTPUT_ISO_PATH --exclude DIR1 --exclude DIR2 --bootloader BOOTLOADER_COMMAND
-```
-
-- `OUTPUT_ISO_PATH`: Path where the ISO image will be created.
-- `--exclude DIR1`: Exclude directory DIR1 from the ISO. You can provide multiple `--exclude` flags for additional directories.
-- `--bootloader BOOTLOADER_COMMAND`: (Optional) Command to install the bootloader for creating a bootable ISO.
+- 🌈 **User-friendly Interface:** Easy-to-follow steps for creating an ISO image.
+- 🔄 **Progress Bars:** Visual indicators for copying files, creating ISO, and installing the bootloader.
+- 📂 **Exclude Directories:** Choose specific folders to exclude from the ISO.
+- ⚙️ **Bootloader Installation:** Optional installation of a bootloader for system bootability.
+- 🔒 **Root Privileges Check:** Ensures the script has the necessary permissions.
 
 ## Prerequisites
 
-- Root privileges (use `sudo` to run the script).
-- Required tool: `genisoimage` (install it using your system's package manager).
+Before using the System ISO Creator, make sure you have the following:
 
-## Example
+- A computer running a Linux operating system.
+- [Python](https://www.python.org/downloads/) installed.
+- The `genisoimage` tool, usually available through your system's package manager.
 
-```bash
-sudo ./system_iso.py my_system.iso --exclude /home --bootloader "grub-install /dev/sdX"
-```
+## Installation
 
-This example creates an ISO named `my_system.iso`, excluding the `/home` directory and installing the Grub bootloader.
+1. **Download the Script:**
+    ```bash
+    git clone https://github.com/your-username/system-iso-creator.git
+    cd system-iso-creator
+    ```
+
+2. **Install Required Packages:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+## Usage
+
+1. **Run the Script:**
+    ```bash
+    sudo ./system_iso_creator.py OUTPUT_ISO_PATH --exclude EXCLUDE_DIR1 --exclude EXCLUDE_DIR2 --bootloader "BOOTLOADER_COMMAND"
+    ```
+
+    Replace:
+    - `OUTPUT_ISO_PATH` with the path where you want to save the ISO.
+    - `EXCLUDE_DIR1` and `EXCLUDE_DIR2` with any folders you want to leave out.
+    - `"BOOTLOADER_COMMAND"` with the bootloader installation command (if needed).
+
+2. **Follow On-Screen Instructions:**
+    The script will guide you through the process with easy-to-understand prompts and progress bars.
+
+## FAQ
+
+### Q: Can I use this on any Linux distribution?
+
+Yes, the System ISO Creator is designed to work on most Linux distributions.
+
+### Q: How do I install the bootloader?
+
+If you're unsure about the bootloader, you can skip providing the `"BOOTLOADER_COMMAND"` during usage. The script will let you know if it's needed.
+
+## Contributing
+
+Contributions are welcome! If you'd like to contribute, please fork the repository, make your changes, and submit a pull request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](LICENSE).
+
