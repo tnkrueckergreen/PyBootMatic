@@ -61,7 +61,7 @@ cd PyBootMatic
 ```bash
 sudo python3 PyBootMatic.py
 ```
-If you wish the new alpha version (very bug-prone at the moment):
+If you wish to try the new alpha version (very bug-prone at the moment):
 ```bash
 sudo python3 PyBootMatic_alpha.py
 ```
