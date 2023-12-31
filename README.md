@@ -45,7 +45,7 @@ sudo apt-get install xorriso
 1. Clone this repository:
 
 ```bash
-git clone https://github.com/your-username/PyBootMatic.git
+git clone https://github.com/tnkrueckergreen/PyBootMatic.git
 cd PyBootMatic
 ```
 
