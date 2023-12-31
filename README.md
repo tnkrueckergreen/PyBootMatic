@@ -52,7 +52,7 @@ cd PyBootMatic
 2. Run the script:
 
 ```bash
-python PyBootMatic.py
+sudo python3 PyBootMatic.py
 ```
 
 Follow the prompts to build Linux or Windows ISO images.
