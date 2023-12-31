@@ -1,6 +1,6 @@
 # PyBootMatic
 
-PyBootMatic is a script for building customized Linux and Windows ISO images. It uses Rich for enhanced console output and requires several dependencies.
+PyBootMatic is a script for building customized Linux and Windows ISO images. It uses Rich for enhanced console output and requires several dependencies. The alpha version configures the critical files needed for a bootable ISO (kernel, grub.cfg, etc)
 
 ## Installation
 
