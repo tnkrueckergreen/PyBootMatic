@@ -10,6 +10,11 @@ Ensure that Python is installed on your system. You can download it from the [of
 
 ### 2. Rich Library
 
+### 2. Pip
+
+If you don't have `pip` installed, you can install it by following the instructions on the [official pip website](https://pip.pypa.io/en/stable/installation/).
+
+
 Install the Rich library using the following command:
 
 ```bash
