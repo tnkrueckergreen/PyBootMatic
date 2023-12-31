@@ -1,6 +1,6 @@
 # PyBootMatic
 
-PyBootMatic is a script for building bootable Linux ISO images from your current system. It is quite simple to use. (Windows ISO is not implemented yet) It uses Rich for enhanced console output and requires several dependencies. The stable version works but it has not been tested enough to dermine whetehre the created ISO is bootable. But it can be used as a backup system. This page will be updated as the script is tested more. The alpha version configures the critical files needed for a bootable ISO (kernel, grub.cfg, etc). Both need work :)
+PyBootMatic is a script for building bootable Linux ISO images from your current system. It is quite simple to use. (Windows ISO creation is not yet implemented.) It uses Rich for enhanced console output and requires several dependencies. The stable version is functional but has not been tested extensively enough to confirm if the created ISO is reliably bootable. However, it can be used to generate a backup system image. This page will be updated as the script undergoes further testing. The alpha version configures the kernel, grub.cfg and other critical files needed for a bootable ISO. Further development is still required for both versions.
 
 ## Installation
 
