@@ -10,7 +10,7 @@ Ensure that Python is installed on your system. You can download it from the [of
 
 ### 2. Pip
 
-If you don't have `pip` installed, you can install it by following the instructions on the [official pip website](https://pip.pypa.io/en/stable/installation/). Or, for Debain-based systems:
+If you don't have `pip` installed, you can install it by following the instructions on the [official pip website](https://pip.pypa.io/en/stable/installation/). Or, on Debian-based systems:
 ```bash
 sudo apt install python3-pip
 ```
