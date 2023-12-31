@@ -66,7 +66,7 @@ If you wish to try the new alpha version (very bug-prone at the moment):
 sudo python3 PyBootMatic_alpha.py
 ```
 
-Follow the prompts to build Linux or Windows ISO images.
+Prepare for problems, work needs to be done!
 
 ## Notes
 
