@@ -61,4 +61,4 @@ Follow the prompts to build Linux or Windows ISO images.
 
 - Ensure that you have root privileges before running the script.
 
-- Additional dependencies may be required based on your system configuration. Check the script documentation or comments for specific instructions.
+- Additional dependencies may be required based on your system configuration. If you encounter errors, you might have unmet dependencies.
