@@ -12,6 +12,8 @@ import logging
 import getpass
 import hashlib
 
+# Set up the logging module
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 class PyBootMatic:
 
