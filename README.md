@@ -20,7 +20,7 @@ If you don't have `pip` installed, you can install it by following the instructi
 Install the Rich library using the following command:
 
 ```bash
-pip install rich
+sudo pip install rich
 ```
 
 ### 4. Grub
