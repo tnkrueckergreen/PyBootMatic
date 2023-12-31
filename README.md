@@ -6,7 +6,10 @@ PyBootMatic is a script for building customized Linux and Windows ISO images. It
 
 ### 1. Python
 
-Ensure that Python is installed on your system. You can download it from the [official Python website](https://www.python.org/).
+Ensure that Python is installed on your system. You can download it from the [official Python website](https://www.python.org/). Or, for Debain-based systems:
+```bash
+sudo apt install python3-pip
+```
 
 ### 2. Pip
 
@@ -25,7 +28,7 @@ pip install rich
 The script uses `grub-mkrescue` to create a bootable ISO. Install GRUB tools on your system. The installation process may vary; for example, on Debian-based systems:
 
 ```bash
-sudo apt-get install grub-pc-bin
+sudo apt install grub-pc-bin
 ```
 
 ### 5. Rsync
@@ -33,7 +36,7 @@ sudo apt-get install grub-pc-bin
 The script uses the `rsync` command for copying the filesystem. Install it with the package manager appropriate for your system. For example, on Debian-based systems:
 
 ```bash
-sudo apt-get install rsync
+sudo apt install rsync
 ```
 
 ### 6. Xorriso
@@ -41,7 +44,7 @@ sudo apt-get install rsync
 Install `xorriso` with the following command:
 
 ```bash
-sudo apt-get install xorriso
+sudo apt install xorriso
 ```
 
 ## Usage
