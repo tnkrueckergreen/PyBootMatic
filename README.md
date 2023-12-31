@@ -6,14 +6,14 @@ PyBootMatic is a script for building customized Linux and Windows ISO images. It
 
 ### 1. Python
 
-Ensure that Python is installed on your system. You can download it from the [official Python website](https://www.python.org/). Or, for Debain-based systems:
-```bash
-sudo apt install python3-pip
-```
+Ensure that Python is installed on your system. You can download it from the [official Python website](https://www.python.org/). 
 
 ### 2. Pip
 
-If you don't have `pip` installed, you can install it by following the instructions on the [official pip website](https://pip.pypa.io/en/stable/installation/).
+If you don't have `pip` installed, you can install it by following the instructions on the [official pip website](https://pip.pypa.io/en/stable/installation/). Or, for Debain-based systems:
+```bash
+sudo apt install python3-pip
+```
 
 ### 3. Rich Library
 
