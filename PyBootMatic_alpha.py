@@ -11,6 +11,7 @@ import struct
 import logging
 import getpass
 import hashlib
+import apt
 
 # Set up the logging module
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
