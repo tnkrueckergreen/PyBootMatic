@@ -47,7 +47,7 @@ Install `xorriso` with the following command:
 sudo apt install xorriso
 ```
 
-### 6. Apt
+### 7. Apt
 
 Install `python3-apt` with the following command:
 
