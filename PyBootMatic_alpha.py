@@ -1,20 +1,39 @@
-from rich import print
-from rich.progress import Progress
-from rich.prompt import Prompt, Confirm
-from pathlib import Path
+import apt
+import shutil
 import subprocess
 import tempfile
-import sys
 import os
-import shutil
+import sys
 import struct
 import logging
 import getpass
 import hashlib
-import apt
+from rich.prompt import Prompt, Confirm
+from rich.progress import Progress
+from pathlib import Path
 
-# Set up the logging module
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+def install_kernel():
+    logging.basicConfig(format="[%(levelname)s] %(message)s", level=logging.INFO)
+    logger, cache, lw = logging.getLogger(__name__), apt.Cache(), lambda p: p.candidate.version
+    logger.info("Starting kernel installation script.")
+
+    latest_kernel = max((pkg for pkg in cache if pkg.candidate and pkg.name.startswith("linux-image")), key=lw, default=None)
+    if not latest_kernel:
+        logger.error("Error: No suitable kernel package found.")
+        sys.exit(1)
+
+    kv = latest_kernel.candidate.version
+    logger.info(f"Found the latest kernel: {latest_kernel.name} (Version: {kv})")
+    latest_kernel.mark_install()
+
+    try:
+        cache.commit()
+        logger.info("Successfully marked the latest kernel for installation.")
+    except Exception as e:
+        logger.error(f"Failed to install the latest kernel: {e}")
+        sys.exit(1)
+
+    logger.info(f"Latest kernel installed successfully: {latest_kernel.name} (Version: {kv})")
 
 class PyBootMatic:
 
@@ -45,7 +64,7 @@ class PyBootMatic:
             build_dir = Path(td) / "build"
             build_dir.mkdir()
             self.copy_fs(build_dir)
-            make_grub(build_dir, iso_path)
+            self.make_grub(build_dir, iso_path)
 
     def make_full_custom_linux(self, iso_path):
         self.make_vanilla_linux(iso_path)
@@ -54,7 +73,6 @@ class PyBootMatic:
         print("[red]\nWindows ISO build not implemented[/]")
 
     def copy_fs(self, dest_dir):
-        """Copies the filesystem to the destination directory, excluding specified directories."""
         excluded = [
             "/tmp",
             "/run",
@@ -62,8 +80,8 @@ class PyBootMatic:
             "/dev",
             "/proc",
             "/sys",
-            str(dest_dir),  # Exclude the build directory itself
-            "/**/.cache/**",  # Exclude all ".cache" directories recursively
+            str(dest_dir),
+            "/**/.cache/**",
         ]
         with Progress() as progress:
             task = progress.add_task("[green]Cloning filesystem[/]", total=1000)
@@ -92,27 +110,23 @@ class PyBootMatic:
                 sys.exit(1)
             progress.update(task, advance=1000)
 
+    def make_grub(self, build_dir, iso_path):
+        kernel = self.get_kernel(build_dir)
+        if not kernel:
+            install_kernel()
+            kernel = self.get_kernel(build_dir)
 
-def make_grub(build_dir, iso_path):
-    """Create a bootable ISO image with GRUB bootloader and a menu."""
-    if not os.path.exists(build_dir) or not os.path.isdir(build_dir):
-        raise ValueError(f"The build directory {build_dir} does not exist or is not a directory.")
-    if not str(iso_path) or not str(iso_path).endswith(".iso"):
-        raise ValueError(f"The iso path {iso_path} is not valid or does not have the .iso extension.")
-    with Progress() as progress:
-        task = progress.add_task("[blue]Installing bootloader[/]", total=1000)
-        find_cmd = ["find", "/", "-xdev", "-type", "f", "-name", "grub.cfg", "-quit"]
-        try:
-            grub_cfg = subprocess.check_output(find_cmd).decode().strip()
-        except subprocess.CalledProcessError as e:
-            raise subprocess.CalledProcessError(e.returncode, e.cmd, e.output)
-        if not grub_cfg:
-            logging.info("The grub.cfg file does not exist in the system. Generating a new one.")
-            grub_dir = os.path.join(build_dir, "boot", "grub")
-            os.makedirs(grub_dir, exist_ok=True)
-            grub_cfg = os.path.join(grub_dir, "grub.cfg")
-            kernel = os.path.basename(os.path.join(build_dir, "boot", "vmlinuz"))
-            initrd = os.path.basename(os.path.join(build_dir, "boot", "initrd.img"))
+        initrd = self.get_initrd(build_dir)
+        if not initrd:
+            self.install_initrd(build_dir)
+            initrd = self.get_initrd(build_dir)
+
+        grub_dir = build_dir / "boot" / "grub"
+        grub_cfg = grub_dir / "grub.cfg"
+
+        os.makedirs(os.path.dirname(grub_cfg), exist_ok=True)
+
+        if not grub_cfg.exists():
             try:
                 with open(grub_cfg, "w") as f:
                     f.write(f"""# This is the grub.cfg file for the ISO image
@@ -131,39 +145,84 @@ menuentry "Install the system" {{
     initrd (loop)/boot/{initrd}
 }}""")
             except IOError as e:
-                raise IOError(f"The grub.cfg file could not be created or written: {e}")
+                print(f"The grub.cfg file could not be created or written: {e}")
+                sys.exit(1)
         else:
-            logging.info(f"The grub.cfg file exists in the system: {grub_cfg}")
-            grub_dir = os.path.join(build_dir, "boot", "grub")
-            shutil.copy(grub_cfg, grub_dir)
+            print(f"The grub.cfg file already exists in the system: {grub_cfg}")
 
         password = getpass.getpass("Enter a password to encrypt the ISO image: ")
         password_hash = hashlib.sha256(password.encode()).hexdigest()
-        xorriso_cmd = ["xorriso", "-as", "mkisofs", "-o", iso_path, "-V", "ENCRYPTED_ISO", "-isohybrid-mbr", "/usr/lib/ISOLINUX/isohdpfx.bin", "-c", "isolinux/boot.cat", "-b", "isolinux/isolinux.bin", "-no-emul-boot", "-boot-load-size", "4", "-boot-info-table", "-eltorito-alt-boot", "-e", "--", "-no-emul-boot", "-isohybrid-gpt-basdat", "-isohybrid-apm-hfsplus", "-encrypt", "aes256", password_hash, build_dir]
+        
+        # Generate grub rescue config
+        rescue_cfg = grub_dir / "rescue.cfg"
+        with open(rescue_cfg, "w") as f:
+            f.write(f"""set timeout=10
+
+loopback loop {iso_path}
+set root=(loop)
+
+linux (loop)/boot/{kernel}
+initrd (loop)/boot/{initrd}
+""")
+
+        # Create ISO with grub rescue
         try:
-            subprocess.run(xorriso_cmd, check=True)
+            subprocess.run(["grub-mkrescue", "-o", iso_path, build_dir], check=True)
         except subprocess.CalledProcessError as e:
-            raise subprocess.CalledProcessError(e.returncode, e.cmd, e.output)
-        progress.update(task, advance=1000)
+            print(f"Error: Failed to create ISO image with grub rescue: {e}")
+            sys.exit(1)
 
-        if check_bootable(iso_path):
-            logging.info(f"The ISO file {iso_path} is bootable and encrypted.")
+        if self.check_bootable(iso_path):
+            print(f"The ISO file {iso_path} is bootable and encrypted.")
         else:
-            logging.error(f"The ISO file {iso_path} is not bootable or encrypted.")
+            print(f"The ISO file {iso_path} is not bootable or encrypted.")
 
+    def get_kernel(self, build_dir):
+        kernel_path = build_dir / "boot" / "vmlinuz"
+        if kernel_path.exists():
+            return "vmlinuz"
+        return ""
 
-def check_bootable(iso_path):
-    """Check if the ISO file is bootable by reading the boot sector."""
-    if not os.path.exists(iso_path) or not os.path.isfile(iso_path):
-        raise FileNotFoundError(f"The ISO file {iso_path} does not exist or is not a file.")
-    try:
-        with open(iso_path, "rb") as iso_file:
-            boot_sector = iso_file.read(512)
-            magic_number = struct.unpack("<H", boot_sector[-2:])[0]
-            return magic_number == 0xAA55
-    except IOError as e:
-        raise IOError(f"The ISO file {iso_path} is corrupted or unreadable: {e}")
+    def get_initrd(self, build_dir):
+        initrd_path = self.get_latest_initrd(build_dir)
+        if initrd_path:
+            return initrd_path.name
+        return ""
 
+    def get_latest_initrd(self, build_dir):
+        initrd_path = build_dir / "boot" / "initrd.img-*"
+        initrd_files = list(initrd_path.parent.glob(initrd_path.name))
+        if initrd_files:
+            return max(initrd_files, key=os.path.getctime)
+        return None
+
+    def install_initrd(self, build_dir):
+        cache = apt.Cache()
+        initrd_pkg = cache["initramfs-tools"]
+        initrd_pkg.mark_install()
+
+        try:
+            cache.commit()
+        except Exception as error:
+            print(f"Failed installing initramfs-tools: {error}")
+
+        subprocess.run(["update-initramfs", "-u"], check=True)
+
+        grub_dir = build_dir / "boot" / "grub"
+        initrd_path = self.get_latest_initrd(build_dir)
+        if initrd_path:
+            shutil.copy(initrd_path, grub_dir)
+
+    def check_bootable(self, iso_path):
+        if not os.path.exists(iso_path) or not os.path.isfile(iso_path):
+            raise FileNotFoundError(f"The ISO file {iso_path} does not exist or is not a file.")
+        try:
+            with open(iso_path, "rb") as iso_file:
+                boot_sector = iso_file.read(512)
+                magic_number = struct.unpack("<H", boot_sector[-2:])[0]
+                return magic_number == 0xAA55
+        except IOError as e:
+            raise IOError(f"The ISO file {iso_path} is corrupted or unreadable: {e}")
 
 def main():
     app = PyBootMatic()
@@ -177,7 +236,6 @@ def main():
             app.build_linux(iso_path)
         else:
             app.build_windows(iso_path)
-
 
 if __name__ == "__main__":
     main()
