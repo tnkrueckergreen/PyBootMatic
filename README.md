@@ -47,6 +47,14 @@ Install `xorriso` with the following command:
 sudo apt install xorriso
 ```
 
+### 6. Apt
+
+Install `python3-apt` with the following command:
+
+```bash
+sudo apt install python3-apt
+```
+
 ## Usage
 
 1. Clone this repository:
@@ -73,28 +81,3 @@ Prepare for problems, work needs to be done!
 - Ensure that you have root privileges before running the script.
 
 - Additional dependencies may be required based on your system configuration. If you encounter errors, you may have unmet dependencies.
-
-
-It looks like there are a few issues that could cause the ISO to not have the kernel or initrd:
-
-1. The `get_kernel()` and `get_initrd()` methods are not actually copying the kernel/initrd into the ISO build directory. They are just checking if the files exist and returning the filenames. So this would cause empty files in the ISO.
-
-2. The `install_initrd()` method installs `initramfs-tools` but doesn't actually copy the generated initrd into the build directory.
-
-3. When calling `grub-mkrescue`, it is only passed the build directory, not the full path to the kernel/initrd files. So Grub may not be able to find those files to add them to the ISO.
-
-Here are some suggestions to fix it:
-
-1. Update `get_kernel()` and `get_initrd()` to actually copy the files into the build directory if found rather than just returning the filenames.
-
-2. In `install_initrd()`, copy the generated initrd file into the build directory after running `update-initramfs`.
-
-3. Pass the full paths to the kernel and initrd files to `grub-mkrescue`, rather than just the build directory:
-
-```
-grub-mkrescue -o iso_path /full/path/to/vmlinuz /full/path/to/initrd.img build_dir
-```
-
-This will explicitly tell Grub where to find those critical boot files.
-
-Let me know if any part of the suggestions needs more clarification!
